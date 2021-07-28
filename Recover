@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
-
-int jpgCheck(unsigned char bytes[]);
+bool jpgCheck(unsigned char bytes[]);
 
 int main(int argc, char *argv[])
 {
@@ -21,22 +21,22 @@ int main(int argc, char *argv[])
     }
     unsigned char bytes[512];
     int count = 0;
-    int jpegs = 0;
+    bool jpegs = false;
     char filename[8];
     FILE *result;
 
 
     while (fread(bytes, 512, 1, file) != 0)
     {
-        if (jpgCheck(bytes) == 1)
+        if (jpgCheck(bytes))
         {
-            if (jpegs == 1)
+            if (jpegs)
             {
                 fclose(result);
             }
             else
             {
-                jpegs = 1;
+                jpegs = true;
             }
 
             sprintf(filename, "%03d.jpg", count);
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
             count++;
 
         }
-        if (jpegs == 1)
+        if (jpegs)
         {
             fwrite(&bytes, 512, 1, result);
         }
@@ -56,11 +56,11 @@ int main(int argc, char *argv[])
     fclose(file);
 
 }
-int jpgCheck(unsigned char bytes[])
+bool jpgCheck(unsigned char bytes[])
 {
     if (bytes[0] == 0xff && bytes[1] == 0xd8 && bytes[2] == 0xff && (bytes[3] & 0xf0) == 0xe0)
     {
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
