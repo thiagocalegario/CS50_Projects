@@ -56,10 +56,10 @@ def insert_touch(root, caminho):
                 if len(caminho) > 1:
                     insert_touch(root.children[i], caminho[1:])
                 elif i == len(root.children) -1:
-                    if root.children[i].nodeType != 1:
-                        root.add_child(caminho[0], 1)
+                    if root.children[i].nodeType == 0:
+                        print('CAMINHO INVÁLIDO')
                     else:
-                        print('CAMINHO JA EXISTE')
+                        print('ARQUIVO JÁ EXISTE')
                         return
         return
 
@@ -80,6 +80,7 @@ def remove(root, caminho):
         print('CAMINHO INVÁLIDO')
 
 def cd(root, caminho):
+
     '''implemetar o ponto ponto'''
     if len(root.children) > 0:
         for i in range(len(root.children)):
@@ -91,7 +92,7 @@ def cd(root, caminho):
                 else:
                     return root.children[i]
             if i == len(root.children) -1:
-                return -1
+                return 0
     else:
         return 0
 
@@ -104,31 +105,66 @@ def pwd(atual, teste = None):
     elif atual == root and not teste:
         print('/', end='')
 
-# def move(caminho_origem, arquivos, caminho_destino)
-#
 root = TreeNode('/')
 diretorio_atual = root
+def f(corrente, n):
+    if n > 0:
+        return f(corrente.parent, n-1)
+    else:
+        return corrente.key
+
+def make_dir(entrada):
+    novo_para_teste = entrada[1]
+    novo_para_teste.split('/')
+    if '..' in novo_para_teste:
+        tamanho = novo_para_teste.count('..')
+        g = f(diretorio_atual, tamanho)
+        diretorio = '/' + g + novo_para_teste[(3)*tamanho-1:]
+        diretorio = diretorio[1:].split('/')
+        return diretorio
+    else:
+        diretorios = entrada[1][1:].split('/')
+        return diretorios
+
+
+def move(root, vetor):
+    if len(root.children) == 0:
+        print('CAMINHO INVÁLID')
+        return 0
+    else:
+        for i in range(len(root.children)):
+            if vetor[0] == root.children[i].key:
+                if len(vetor) > 1:
+                    move(root.children[i], vetor[1:])
+                else:
+                    return root.children[i]
+            elif i == len(root.children) -1:
+                print('ARQUIVO ou DIRETÓRIO não existe')
+                return 1
+
+
+
 while True:
     entrada = input().split()
     comando = entrada[0]
     if comando == 'end':
         break
     if comando == 'mkdir':
-        diretorios = entrada[1][1:].split('/')
-        insert_check(root, diretorios)
+        if entrada[1] == '/':
+            print('DIRETÓRIO JÁ EXISTE')
+        insert_check(root, make_dir(entrada))
     if comando == 'touch':
         if '/' not in entrada[1]:
             insert_touch(root, entrada[1:])
         else:
-            diretorios = entrada[1][1:].split('/')
-            insert_touch(root, diretorios)
-
+            insert_touch(root, make_dir(entrada))
     if comando == 'cd':
+        if entrada[1] == '.':
+            continue
         if entrada[1] == '/':
             diretorio_atual = root
         else:
-            diretorios = entrada[1][1:].split('/')
-            new = cd(root, diretorios)
+            new = cd(root, make_dir(entrada))
             if new == -1:
                 print('COMANDO INVÁLIDO')
             elif new == 0:
@@ -141,6 +177,18 @@ while True:
         if diretorio_atual == 'pombo':
             diretorio_atual = root
         pwd(diretorio_atual), print('')
+
     if comando == 'rm':
-        diretorios = entrada[1][1:].split('/')
-        remove(root, diretorios)
+        remove(root, make_dir(entrada))
+
+    if comando == 'mv':
+        entrada_1 = entrada[1][1:].split('/')
+        entrada_2 = entrada[2][1:].split('/')
+        from_move = move(root, entrada_1)
+        if from_move:
+            to_move = move(root, entrada_2)
+            if to_move:
+                pai = from_move.parent
+                pai.children.remove(from_move)
+                from_move.parent = to_move
+                to_move.children.append(from_move)
