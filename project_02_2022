@@ -1,0 +1,127 @@
+
+class TreeNode(object):
+    def __init__(self, name, parent = None, nodeType = None):
+        self.key = name
+        self.parent=parent
+        self.children = []
+        self.nodeType = nodeType
+
+    def add_child(self, node, data):
+        var = TreeNode(node, parent=self, nodeType = data)
+        self.children.append(var)
+        return var
+
+'''Imprimir arvore'''
+def show(node, level=0):
+    print(f'{"---" * level}{node.key}')
+    for f in sorted(node.children, key=lambda node: node.key):
+        show(f, level + 1)
+
+'''Inserir elementos na arvore'''
+def insert_check(direct, caminho):
+    if len(direct.children) > 0:
+        for i in range(len(direct.children)):
+            if caminho[0] == direct.children[i].key:
+                if len(caminho) > 1:
+                    insert_check(direct.children[i], caminho[1:])
+                else:
+                    print('DIRETÓRIO JÁ EXISTE')
+                return
+            elif i == len(direct.children) - 1:
+                var = direct.add_child(caminho[0], 0)
+                if len(caminho) > 1:
+                    insert_check(var, caminho[1:])
+                return
+    else:
+        if len(caminho) > 0:
+            new_child = direct.add_child(caminho[0], 0)
+            if len(caminho) > 1:
+
+                insert_check(new_child, caminho[1:])
+            else:
+                return
+
+def insert_touch(root, caminho):
+    if len(root.children) == 0:
+        if len(caminho) > 1:
+            print(len(caminho))
+            print('CAMINHO INVÁLIDO')
+        else:
+            if root.nodeType != 1:
+                root.add_child(caminho[0], 1)
+            else:
+                print('CAMINHO INVÁLIDO')
+    else:
+        for i in range(len(root.children)):
+            if caminho[0] == root.children[i].key:
+                if len(caminho) > 1:
+                    insert_touch(root.children[i], caminho[1:])
+                elif i == len(root.children) -1:
+                    if root.children[i].nodeType != 1:
+                        root.add_child(caminho[0], 1)
+                    else:
+                        print('CAMINHO JA EXISTE')
+                        return
+        return
+
+
+
+
+def cd(root, caminho):
+    if len(root.children) > 0:
+        for i in range(len(root.children)):
+            if caminho[0] == root.children[i].key:
+                if len(caminho) > 1 and root.children[i].nodeType == 0:
+                    return(cd(root.children[i], caminho[1:]))
+                elif len(caminho) > 2 and root.children[i].nodeType == 1:
+                    return -1
+                else:
+                    return root.children[i]
+            if i == len(root.children) -1:
+                return -1
+    else:
+        return 0
+
+def pwd(atual, teste = None):
+    if atual.parent:
+        teste = True
+        pwd(atual.parent, teste)
+        print('/', end='')
+        print(atual.key, end='')
+    elif atual == root and not teste:
+        print('/', end='')
+
+
+root = TreeNode('/')
+diretorio_atual = root
+while True:
+    entrada = input().split()
+    comando = entrada[0]
+    if comando == 'end':
+        break
+    if comando == 'mkdir':
+        diretorios = entrada[1][1:].split('/')
+        insert_check(root, diretorios)
+    if comando == 'touch':
+        if '/' not in entrada[1]:
+            insert_touch(root, entrada[1:])
+        else:
+            diretorios = entrada[1][1:].split('/')
+            insert_touch(root, diretorios)
+
+    if comando == 'cd':
+        if entrada[1] == '/':
+            diretorio_atual = root
+        else:
+            diretorios = entrada[1][1:].split('/')
+            new = cd(root, diretorios)
+            if new == -1:
+                print('COMANDO INVÁLIDO')
+            elif new == 0:
+                print('CAMINHO INVÁLIDO')
+            else:
+                diretorio_atual = new
+    if comando == 'show':
+        show(root)
+    if comando == 'pwd':
+        pwd(diretorio_atual), print('')
