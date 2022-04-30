@@ -1,0 +1,73 @@
+class Grafo:
+    def __init__(self, direcionado=True):
+        self.lista_Vertices = []
+        self.lista_Arestas = []
+        self.direcionado = direcionado
+        self.tempo = 0
+
+    def novo_Vertice(self, identificador):
+        # string = input(str("Identificador do Vertice: "))
+        self.lista_Vertices.append(Vertice(identificador))
+
+    def busca_Aresta(self, u, v):  # Método recebe dois objetos do tipo Vértice
+        for w in self.lista_Arestas:
+            origem = w.getOrigem()
+            destino = w.getDestino()
+            if origem.getId() == u.getId() and destino.getId() == v.getId():
+                return w
+
+    def busca_Vertice(self, identificador):  # Método recebe um int
+        for i in self.lista_Vertices:
+            if identificador == i.getId():
+                return i
+        else:
+            return None
+
+    def nova_Aresta(self, origem, destino, peso):  # Método recebe dois identificadores
+        origem_aux = self.busca_Vertice(origem)
+        destino_aux = self.busca_Vertice(destino)
+        if (origem_aux is not None) and (destino_aux is not None):
+            self.lista_Arestas.append(Aresta(origem_aux, destino_aux, peso))
+        else:
+            print("Um do Vertice ou ambos são invalidos")
+
+        if self.direcionado == False:
+            self.lista_Arestas.append(Aresta(destino_aux, origem_aux, peso))  # Aresta(u,v) e Aresta(v,u)
+
+def Minimum_spanning_tree(self, origem):  # Prim
+    fonte = self.busca_Vertice(origem)
+    if fonte is None:
+        return "Vertice Nulo"
+
+    self.inicializa_Fonte(fonte)
+    lista = []
+    for i in self.lista_Vertices:
+        lista.append(i)
+    lista.sort()
+    while len(lista) != 0:
+        # ordeno a lista baseado na estimativa
+        u = lista[0]
+        v = self.busca_Adjacente(u)
+
+        if v is None:
+            for i in lista:  # como o vetice u marcou seus adj como visitado nenhum outro vértice visitara
+                i.setVisitado(
+                    False)  # esse vertice então preciso marcar como não visitado pra bucar os adj de outro vertice
+                # retiro vertice sem adjacente
+            lista.sort()
+            self.tempo += 1
+            u.setImput(self.tempo)
+            lista.remove(u)
+        else:
+            w = self.busca_Aresta(u, v)
+            if lista.count(v) > 0:
+                if v.getEstimativa() > w.getPeso():
+                    v.predecessor = [u.getId()]
+                    v.setEstimativa(w.getPeso())
+
+    for u in self.lista_Vertices:
+        if len(u.predecessor) > 0:
+            print(u.predecessor, "------", u.getId())
+    self.lista_Vertices.sort(key=lambda u: u.input, reverse=False)
+    for i in self.lista_Vertices:
+        print(i)
