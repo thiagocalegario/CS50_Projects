@@ -105,8 +105,19 @@ def pwd(atual, teste = None):
     elif atual == root and not teste:
         print('/', end='')
 
-root = TreeNode('/')
-diretorio_atual = root
+def pwdeee(atual, lista, teste = None):
+    if atual.parent:
+        teste = True
+        pwdeee(atual.parent, teste)
+        lista.append(atual.key)
+    return lista
+
+# def pwc_dot(atual):
+#     if atual.parent:
+#         pwc_dot(atual.parent)
+#     else:
+#         return atual
+
 def f(corrente, n):
     if n > 0:
         return f(corrente.parent, n-1)
@@ -117,11 +128,17 @@ def make_dir(entrada):
     novo_para_teste = entrada[1]
     novo_para_teste.split('/')
     if '..' in novo_para_teste:
+        print('a')
         tamanho = novo_para_teste.count('..')
         g = f(diretorio_atual, tamanho)
         diretorio = '/' + g + novo_para_teste[(3)*tamanho-1:]
         diretorio = diretorio[1:].split('/')
         return diretorio
+    elif '.' in novo_para_teste and novo_para_teste.count('.') == 1:
+        lista = []
+        tst = pwdeee(diretorio_atual, lista)
+        # diretorio = tst.key+entrada[1:]
+        # print(diretorio)
     else:
         diretorios = entrada[1][1:].split('/')
         return diretorios
@@ -143,7 +160,8 @@ def move(root, vetor):
                 return 1
 
 
-
+root = TreeNode('/')
+diretorio_atual = root
 while True:
     entrada = input().split()
     comando = entrada[0]
